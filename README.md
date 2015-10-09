@@ -1,5 +1,5 @@
 # pyPdf417
-PDF417 Barcode Generator
+PDF417 Barcode Generator (alpha, currently supports only text-mode)
 
 # Basic usage
 
