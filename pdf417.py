@@ -555,7 +555,7 @@ class PDF417(object):
             if seq[1] > 0:
                 prevseq = code[offset:seq[1]-offset]
 
-                # search from TAB to ~ accroding to ASCII table
+                # search from TAB to ~ according to ASCII table
                 textseq = re.findall('([\x09\x0a\x0d\x20-\x7e]{5,})', prevseq)
 
                 for n in range(0, len(textseq)):
@@ -718,6 +718,7 @@ class PDF417(object):
         return self.barcode_array
 
     def save_to_png(self, filename):
+        """create png image with barcode inside and save to file"""
         bh = 2
         bw = 2
         y = 0
@@ -739,3 +740,37 @@ class PDF417(object):
             y += bh
 
         im.save(filename)
+
+    def save_barcode_to_pillow(self, scale_x=1, scale_y=1):
+        """create pillow image with barcode inside"""
+
+        # creating a black and while 1-BIT image
+        # note: if you have problems with 1-BIT images
+        # select image type "L" and set color=255 for a greyscale image
+
+        im = Image.new('1',
+                       (int(self.barcode_array['num_cols']),
+                        int(self.barcode_array['num_rows'])),
+                       color=1)
+
+        # note: the generated barcode array is inverse, "1" is black, "0" is white.
+
+        pixels = im.load()
+        for r in xrange(int(self.barcode_array['num_rows'])):
+            for c in xrange(int(self.barcode_array['num_cols'])):
+                if self.barcode_array['bcode'][r][c] == "1":
+                    pixels[c, r] = 0
+
+        if scale_x != 1 or scale_y != 1:
+            im = im.resize(
+                (scale_x * int(self.barcode_array['num_cols']),
+                 scale_y * int(self.barcode_array['num_rows'])))
+
+        return im
+
+    def save_to_image_file(self, filename, image_format='png', scale_x=2, scale_y=2):
+        """request to save barcode as a file"""
+        # defaults to double size - for fair comparison to previous png method
+        # TODO - Set defaults for rescale to 1
+
+        self.save_barcode_to_pillow(scale_x=scale_x, scale_y=scale_y).save(filename, format=image_format)
