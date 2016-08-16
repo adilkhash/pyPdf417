@@ -717,30 +717,6 @@ class PDF417(object):
     def get_barcode_array(self):
         return self.barcode_array
 
-    def save_to_png(self, filename):
-        """create png image with barcode inside and save to file"""
-        bh = 2
-        bw = 2
-        y = 0
-
-        im = Image.new('RGB', (int(self.barcode_array['num_cols']) * bw, bh * int(self.barcode_array['num_rows'])), (255, 255, 255))
-        dr = ImageDraw.Draw(im)
-
-        # per each row
-        for r in range(self.barcode_array['num_rows']):
-            x = 0
-
-            for c in range(int(self.barcode_array['num_cols'])):
-                if int(self.barcode_array['bcode'][r][c]) == 1:
-
-                    dr.rectangle(((x+1, y+1), (x+2, y+2)), fill="black")
-
-                x += bw
-
-            y += bh
-
-        im.save(filename)
-
     def save_barcode_to_pillow(self, scale_x=1, scale_y=1):
         """create pillow image with barcode inside"""
 
@@ -768,9 +744,11 @@ class PDF417(object):
 
         return im
 
-    def save_to_image_file(self, filename, image_format='png', scale_x=2, scale_y=2):
+    def save_to_image_file(self, filename, image_format='png', scale_x=1, scale_y=1):
         """request to save barcode as a file"""
-        # defaults to double size - for fair comparison to previous png method
-        # TODO - Set defaults for rescale to 1
 
-        self.save_barcode_to_pillow(scale_x=scale_x, scale_y=scale_y).save(filename, format=image_format)
+        self.save_barcode_to_pillow(scale_x=scale_x, scale_y=scale_y).save(filename,
+                                                                           format=image_format)
+
+    def save_to_png(self, filename, scale_x=2, scale_y=2):
+        self.save_to_image_file(filename, scale_x=scale_x, scale_y=scale_y)
